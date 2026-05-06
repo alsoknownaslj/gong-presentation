@@ -288,8 +288,8 @@ function MethodologySlide() {
           Data Modeling
         </h3>
         {[
-          "Seeds → Staging: Loaded the two raw CSVs (performance and Gong engagement), standardized column names to snake_case, and cast data types (integers for counts, floats for dollar amounts and scores, boolean for new hire flag).",
-          "Staging → Intermediate: Joined the two tables on rep ID. Computed winsorization thresholds (p01/p99) by cohort in int_metric_bounds. In int_rep_enriched: applied winsorization caps, flagged data quality issues, computed Q3→Q4 deltas (revenue, deal size, deal count), built the composite Gong engagement index, assigned adoption tier quartiles (all reps and new hires separately), and calculated new pitch share.",
+          "Seeds → Staging: Loaded the two raw CSVs, standardized column names to snake_case, and cast data types.",
+          "Staging → Intermediate: Joined the two tables on rep ID. Computed winsorization thresholds (p01/p99) by cohort in int_metric_bounds. In int_rep_enriched: applied winsorization caps, flagged data quality issues, computed Q3→Q4 deltas (revenue, deal size, deal count), built the composite Gong engagement index, assigned adoption tiers (all reps and new hires separately), and calculated new pitch share.",
           "Intermediate → Marts: Built three output tables. mart_rep_value_insights is the one-row-per-rep wide table with all raw, cleaned, and derived fields for ad hoc analysis. mart_onboarding_drivers pre-aggregates new hire metrics by adoption tier. mart_productivity_by_tier pre-aggregates revenue and deal metrics by adoption tier for all reps.",
         ].map((item, i) => (
           <div key={i} style={{
@@ -308,7 +308,7 @@ function MethodologySlide() {
           }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: C.gray800, fontFamily: font, marginBottom: 8 }}>Engagement Scoring</div>
             <div style={{ fontSize: 14, color: C.gray600, fontFamily: font, lineHeight: 1.6 }}>
-              Index = Manager Listens + Peer Listens + Deal Board Touches + (50 × Interactivity Score). Quartile tiers assigned within population.
+              Index = Manager Listens + Peer Listens + Deal Board Touches + (50 × Interactivity Score). Tiers assigned within population.
             </div>
           </div>
         </div>
@@ -319,16 +319,16 @@ function MethodologySlide() {
         <DataTable
           headers={["Issue", "Affected", "Treatment"]}
           rows={[
-            ["Q4 deal size outliers", "~20 reps", "Winsorized at p01/p99 within cohorts. Winsorizing caps extreme values at a percentile threshold rather than removing them, preserving sample size while limiting the influence of outliers. Raw max was $3.45M vs median ~$997 — a handful of values were inflating the mean by 10x."],
-            ["Q4 deal count outlier", "Few reps", "Winsorized at p01/p99. At least one value of 499 vs median 99 — likely a data entry error or exceptional case that would skew aggregations."],
-            ["Negative ramp time", "2 new hires", "Set to null. Negative days-to-first-deal is logically impossible — these are clock or data entry errors that would bias the onboarding analysis downward."],
-            ["Revenue vs implied mismatch", "4 reps (0.4%)", "Flagged with a boolean column. For these reps, Revenue Per Rep ≠ Deal Size × Deals. Used reported revenue as the headline metric since it's what the business tracks; winsorized implied revenue used for robustness checks to confirm findings hold under both definitions."],
+            ["Q4 deal size outliers", "~20 reps", "Winsorized at p01/p99 within cohorts. Raw max was $3.45M vs median ~$1k. A handful of values were inflating the mean by 10x."],
+            ["Q4 deal count outlier", "Few reps", "Winsorized at p01/p99. At least one value of 499 vs median 99, ikely a data entry error or exceptional case that would skew aggregations."],
+            ["Negative ramp time", "2 new hires", "Set to null. Negative days-to-first-deal is logically impossible, so these are clock or data entry errors that would bias the onboarding analysis downward."],
+            ["Revenue vs implied mismatch", "4 reps (0.4%)", "Flagged with a boolean column. For these reps, Revenue Per Rep ≠ Deal Size × Deals. Used reported revenue as the headline metric since it's what the business tracks."],
           ]}
         />
 
         <div style={{ marginTop: 24 }}>
           <Callout type="insight">
-            <strong>Statistical approach:</strong> Descriptive tier comparisons, Pearson correlations, and OLS regression. Each rep serves as their own control via Q3 baseline, allowing us to isolate the impact of Gong adoption on Q4 performance.
+            <strong>Statistical approach:</strong> Winsorizing caps extreme values at a percentile threshold rather than removing them, preserving sample size while limiting the influence of outliers. Raw max was $3.45M vs median ~$997 — a handful of values were inflating the mean by 10x. Each rep serves as their own control via Q3 baseline, allowing us to isolate the impact of Gong adoption on Q4 performance.
           </Callout>
         </div>
       </div>
