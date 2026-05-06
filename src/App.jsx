@@ -34,10 +34,8 @@ const rampData = [
 ];
 
 const revenueData = [
-  { tier: "Tier 1", label: "Lowest", delta: -9857, n: 250 },
-  { tier: "Tier 2", label: "", delta: -5168, n: 250 },
-  { tier: "Tier 3", label: "", delta: 1269, n: 250 },
-  { tier: "Tier 4", label: "Highest", delta: 5580, n: 250 },
+  { tier: "Low / No Engagement", label: "", delta: -7513, n: 500 },
+  { tier: "High Engagement", label: "", delta: 3425, n: 500 },
 ];
 
 const pitchData = [
@@ -55,9 +53,9 @@ const correlationData = [
 ];
 
 const scenarioData = [
-  { scenario: "Conservative", pctTop: "40%", topReps: "2,000", bottomReps: "3,000" },
-  { scenario: "Base", pctTop: "50%", topReps: "2,500", bottomReps: "2,500" },
-  { scenario: "Optimistic", pctTop: "65%", topReps: "3,250", bottomReps: "1,750" },
+  { scenario: "Conservative", repsMoved: "250", annual: "$10.9M", desc: "Modest adoption push" },
+  { scenario: "Base", repsMoved: "500", annual: "$21.9M", desc: "Dedicated enablement program" },
+  { scenario: "Optimistic", repsMoved: "1,000", annual: "$43.7M", desc: "Org-wide initiative with manager accountability" },
 ];
 
 // ─── COMPONENTS ───
@@ -372,29 +370,15 @@ function OnboardingSlide() {
           </ResponsiveContainer>
         </div>
 
-        <div style={{ display: "flex", gap: 16, marginBottom: 32, flexWrap: "wrap" }}>
-          <Stat value="15 days" label="Gap between Tier 4 and Tier 1 median ramp time" accent />
-          <Stat value="~$16,500" label="Revenue value of faster ramp per new hire (15 days × $1,097/day)" accent />
-        </div>
-
         <h3 style={{ fontFamily: font, fontSize: 20, fontWeight: 700, color: C.gray800, margin: "0 0 16px" }}>
           Which Gong Features Drive Faster Onboarding?
         </h3>
-        <DataTable
-          headers={["Gong Feature", "Correlation (r)", "p-value", "Strength"]}
-          rows={correlationData.map(d => [
-            d.feature,
-            d.r.toFixed(2),
-            d.p,
-            Math.abs(d.r) > 0.4 ? "Strong" : Math.abs(d.r) > 0.3 ? "Moderate" : "Weak",
-          ])}
-          highlightCol={1}
-        />
-
-        <div style={{ marginTop: 24 }}>
-          <Callout type="action">
-            <strong>Actionable finding:</strong> Manager coaching (call reviews) is the single strongest predictor of faster ramp time (r = -0.44). Managers who use Gong to review more new hire calls see those reps close their first deal sooner. This behavior is coachable and scalable.
-          </Callout>
+        <div style={{
+          display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 8,
+          fontFamily: font, fontSize: 14, color: C.gray700, lineHeight: 1.5,
+        }}>
+          <span style={{ color: C.purple, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>→</span>
+          Manager coaching (call reviews) is the single strongest predictor of faster ramp time. Managers who use Gong to review more new hire calls see those reps close their first deal sooner. This behavior is coachable and scalable.
         </div>
       </div>
     </div>
@@ -410,12 +394,12 @@ function ProductivitySlide() {
           Sales Productivity & Growth
         </h2>
         <p style={{ fontFamily: font, fontSize: 19, color: C.purple, fontWeight: 600, margin: "0 0 36px" }}>
-          Top Gong adopters gained $5,580/quarter while bottom-tier adopters lost $9,857.
+          Reps with high Gong engagement earned ~35% more in revenue while reps with little/no engagement lost ~70%
         </p>
 
         <div style={{ background: C.white, borderRadius: 16, padding: "28px 24px", marginBottom: 32, border: `1px solid ${C.gray200}` }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: C.gray600, fontFamily: font, marginBottom: 16 }}>
-            Avg Revenue Change per Rep (Q3 → Q4) by Gong Adoption Tier
+            Avg Revenue Change per Rep (Q3 → Q4) by Gong Engagement Group
           </div>
           <div style={{ fontSize: 12, color: C.gray400, fontFamily: font, marginBottom: 12 }}>
             All 1,000 reps. Revenue delta = Revenue Per Rep Q4 − Q3 (reported values).
@@ -425,7 +409,7 @@ function ProductivitySlide() {
               <CartesianGrid strokeDasharray="3 3" stroke={C.gray200} vertical={false} />
               <XAxis dataKey="tier" tick={{ fontSize: 13, fill: C.gray600, fontFamily: font }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12, fill: C.gray400, fontFamily: font }} axisLine={false} tickLine={false}
-                tickFormatter={(v) => `$${(v / 1000).toFixed(0)}K`} />
+                tickFormatter={(v) => `${(v / 100).toFixed(0)}%`} />
               <Tooltip
                 contentStyle={{ fontFamily: font, fontSize: 13, borderRadius: 8, border: `1px solid ${C.gray200}` }}
                 formatter={(v) => [`$${v.toLocaleString()}`, "Avg revenue delta"]}
@@ -438,35 +422,17 @@ function ProductivitySlide() {
           </ResponsiveContainer>
         </div>
 
-        <div style={{ display: "flex", gap: 16, marginBottom: 32, flexWrap: "wrap" }}>
-          <Stat value="$15,437" label="Quarterly per-rep revenue gap between top and bottom adoption tiers" accent />
-          <Stat value="$61,748" label="Annualized per-rep gap (×4 quarters)" />
-        </div>
-
         <h3 style={{ fontFamily: font, fontSize: 20, fontWeight: 700, color: C.gray800, margin: "0 0 16px" }}>
           New Pitch Adoption Drives Results
         </h3>
-        <DataTable
-          headers={["Pitch Quartile", "Avg New Pitch Share", "Avg Revenue Delta"]}
-          rows={pitchData.map(d => [
-            d.quartile === "Q1" ? "Q1 (Most old pitch)" : d.quartile === "Q4" ? "Q4 (Most new pitch)" : d.quartile,
-            d.share,
-            `$${d.delta.toLocaleString()}`,
-          ])}
-          highlightCol={2}
-        />
-
-        <div style={{ marginTop: 24 }}>
-          <Callout type="insight">
-            Reps who adopted the new sales messaging outperformed on every metric. Gong enables managers to track pitch compliance and coach toward the new messaging. This is both a measurable behavior change and a directly actionable lever.
-          </Callout>
+        <div style={{
+          display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 8,
+          fontFamily: font, fontSize: 14, color: C.gray700, lineHeight: 1.5,
+        }}>
+          <span style={{ color: C.purple, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>→</span>
+          Reps who used the new pitch most of the time (&gt;50%) outperformed on every metric, including an increase in their average revenue by $2.2K to $5.3K
         </div>
 
-        <div style={{ marginTop: 16 }}>
-          <Callout type="insight">
-            <strong>Robustness:</strong> All findings hold when using winsorized implied revenue instead of reported revenue. The staircase pattern is stable across metric definitions and is not driven by outliers.
-          </Callout>
-        </div>
       </div>
     </div>
   );
@@ -484,17 +450,19 @@ function WhatIfSlide() {
           "What if Gong were rolled out to all 5,000 reps?"
         </p>
 
-        <h3 style={{ fontFamily: font, fontSize: 20, fontWeight: 700, color: C.gray800, margin: "0 0 16px" }}>
+        <Callout type="insight">
+          <strong>The core value lever:</strong> In the deployment, reps with high Gong engagement earned $43.7k more annually than reps with low engagement. What happens with a global rollout with highly engaged reps?
+        </Callout>
+
+        <h3 style={{ fontFamily: font, fontSize: 20, fontWeight: 700, color: C.gray800, margin: "24px 0 16px" }}>
           Projection Inputs
         </h3>
         <DataTable
-          headers={["Assumption", "Value", "Source"]}
+          headers={["Input", "Value", "Source"]}
           rows={[
-            ["Total global reps", "5,000", "Assignment brief"],
-            ["Avg quarterly lift — top-half adopters", "~+$3,424/rep", "Avg of Tier 3 & 4 from Canada data"],
-            ["Avg quarterly lift — bottom-half adopters", "~-$7,512/rep", "Avg of Tier 1 & 2 from Canada data"],
-            ["New hire proportion", "~25%", "248/1,000 in Canada"],
-            ["Effect persistence", "Quarterly × 4", "Conservative (no decay or acceleration)"],
+            ["Total global reps", "5,000", "Per assignment brief"],
+            ["Per-rep annual value of high vs low engagement", "$43,750", "Quarterly gap of $10,937 × 4 from Canada data"],
+            ["New hire proportion", "~25%", "248/1,000 in Canada deployment"],
           ]}
         />
 
@@ -502,7 +470,7 @@ function WhatIfSlide() {
           Scenario Model
         </h3>
         <p style={{ fontFamily: font, fontSize: 15, color: C.gray600, lineHeight: 1.6, margin: "0 0 20px" }}>
-          The primary lever is adoption rate: what percentage of the 5,000-rep global workforce reaches top-half adoption (Tier 3 or 4)?
+          Each scenario asks: how many reps can we move from low to high Gong engagement with the right enablement and adoption investment?
         </p>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16, marginBottom: 32 }}>
@@ -522,13 +490,21 @@ function WhatIfSlide() {
                   {s.scenario}
                 </div>
                 <div style={{ fontSize: 36, fontWeight: 800, color: C.gray900, fontFamily: font }}>
-                  {s.pctTop}
+                  {s.annual}
                 </div>
                 <div style={{ fontSize: 13, color: C.gray500, fontFamily: font, marginTop: 4 }}>
-                  reps at top-half adoption
+                  incremental annual revenue
                 </div>
-                <div style={{ marginTop: 16, borderTop: `1px solid ${c.border}`, paddingTop: 12, fontSize: 13, color: C.gray600, fontFamily: font }}>
-                  {s.topReps} top-half · {s.bottomReps} bottom-half
+                <div style={{ marginTop: 16, borderTop: `1px solid ${c.border}`, paddingTop: 12, fontFamily: font }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: C.gray800 }}>
+                    {s.repsMoved} reps
+                  </div>
+                  <div style={{ fontSize: 13, color: C.gray600, marginTop: 4 }}>
+                    moved to high engagement
+                  </div>
+                  <div style={{ fontSize: 12, color: C.gray500, fontStyle: "italic", marginTop: 8 }}>
+                    {s.desc}
+                  </div>
                 </div>
               </div>
             );
@@ -537,17 +513,17 @@ function WhatIfSlide() {
 
         <div style={{ fontSize: 14, fontFamily: font, color: C.gray600, lineHeight: 1.6, marginBottom: 24, padding: "16px 20px", background: C.gray50, borderRadius: 10, border: `1px solid ${C.gray200}` }}>
           <strong style={{ color: C.gray800 }}>Formula:</strong>{" "}
-          Annual Impact = (Top-half reps × quarterly lift × 4) + (Bottom-half reps × quarterly lift × 4)
+          Annual Impact = Reps moved to high engagement × $43,750 per-rep annual value gap
         </div>
 
         <h3 style={{ fontFamily: font, fontSize: 20, fontWeight: 700, color: C.gray800, margin: "0 0 16px" }}>
-          Additional Value Not Modeled
+          Additional Value
         </h3>
         {[
-          "Onboarding acceleration: ~$16,500 in additional revenue capacity per new hire (15 fewer ramp days)",
+          "Onboarding acceleration: ~$16.5kin additional revenue capacity per new hire (15 fewer ramp days)",
           "Pitch compliance at scale: systematic tracking of messaging adoption across 5,000 reps",
           "Competitive intelligence: visibility into competitor mentions helps reps handle objections",
-          "Manager leverage: one manager can coach many reps through call reviews — coaching scales sub-linearly with headcount",
+          "Manager leverage: one manager can coach many reps through call reviews",
         ].map((item, i) => (
           <div key={i} style={{
             display: "flex", gap: 12, alignItems: "flex-start",
@@ -657,14 +633,14 @@ function ScalabilitySlide() {
         "Layered dbt project: staging → intermediate → marts",
         "Customer-specific YAML configs (metric mappings, thresholds, date ranges)",
         "New customers onboarded by adding a config file, not writing new SQL",
-        "Standardized metric definitions in dbt docs",
+        "Standardized metric definitions in documentation",
       ],
     },
     {
       icon: "📊",
       title: "Tooling & Self-Service",
       items: [
-        "Looker/Tableau dashboard with customer filter — AEs select and see pre-built value slides",
+        "BI dashboard with customer filter — AEs select and see pre-built value slides",
         "Automated PDF/slide export per customer on a scheduled pipeline",
         "Projection calculator for AEs: input reps + adoption rate → annual impact range",
         "Enablement playbook: which slide to lead with by buyer persona",
@@ -685,9 +661,9 @@ function ScalabilitySlide() {
   return (
     <div style={{ minHeight: "100vh", background: C.gray50, padding: "80px 40px 120px" }}>
       <div style={{ maxWidth: 860, margin: "0 auto" }}>
-        <SectionLabel text="6 — Scaling for 100+ Customers" />
+        <SectionLabel text="6 — Scaling for More Customers" />
         <h2 style={{ fontFamily: font, fontSize: 36, fontWeight: 800, color: C.gray900, margin: "0 0 6px" }}>
-          Scaling for 100+ Customers
+          Scaling for More Customers
         </h2>
         <p style={{ fontFamily: font, fontSize: 17, color: C.gray500, margin: "0 0 36px", lineHeight: 1.5 }}>
           Turning a one-off analysis into a repeatable, self-serve capability for Gong's GTM teams.
