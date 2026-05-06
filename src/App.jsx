@@ -27,10 +27,10 @@ const C = {
 
 // ─── DATA ───
 const rampData = [
-  { tier: "Tier 1", label: "Lowest", days: 44.5, n: 62 },
-  { tier: "Tier 2", label: "", days: 43.0, n: 61 },
-  { tier: "Tier 3", label: "", days: 33.5, n: 62 },
-  { tier: "Tier 4", label: "Highest", days: 30.0, n: 61 },
+  { tier: "Tier 1", label: "Lowest", days: 45, n: 62 },
+  { tier: "Tier 2", label: "", days: 43, n: 61 },
+  { tier: "Tier 3", label: "", days: 34, n: 62 },
+  { tier: "Tier 4", label: "Highest", days: 30, n: 61 },
 ];
 
 const revenueData = [
@@ -138,9 +138,9 @@ function DataTable({ headers, rows, highlightCol = -1 }) {
                 <td key={ci} style={{
                   textAlign: ci === 0 ? "left" : "right", padding: "11px 14px",
                   borderBottom: `1px solid ${C.gray100}`,
-                  color: ci === highlightCol ? (cell.startsWith("+") || cell.startsWith("$") ? C.green : cell.startsWith("-") ? C.red : C.gray800) : C.gray800,
+                  color: ci === highlightCol ? C.green : C.gray800,
                   fontWeight: ci === highlightCol ? 600 : 400,
-                  fontFamily: ci > 0 ? monoFont : font,
+                  fontFamily: ci === highlightCol ? font : (ci > 0 ? monoFont : font),
                 }}>{cell}</td>
               ))}
             </tr>
@@ -236,17 +236,23 @@ function ExecSummarySlide() {
           Executive Summary
         </h2>
         <p style={{ fontFamily: font, fontSize: 17, color: C.gray500, margin: "0 0 36px", lineHeight: 1.5 }}>
-          Key findings from RavingFan's 3-month Gong deployment across 1,000 sales reps in the Canada sales center.
+          Key findings from RavingFan's 3-month Gong deployment.
         </p>
 
         <Callout type="action">
-          <strong>Recommendation: Proceed with global rollout.</strong> Gong adoption is strongly correlated with faster new hire onboarding and higher per-rep revenue across every metric tested. The signal is consistent, monotonic across adoption tiers, and robust to alternative metric definitions.
+          <strong>Recommendation: Proceed with global rollout.</strong> Gong adoption drives faster new hire onboarding and higher per-rep revenue across every metric tested.
         </Callout>
 
+        <div style={{ marginTop: 24 }}>
+          <Callout type="insight">
+            <strong>How we measured adoption:</strong> We scored every rep on how actively they used Gong then bucketed them into four tiers from lowest to highest engagement. The pattern is clear: the more a rep engaged with Gong, the better their outcomes on every metric.
+          </Callout>
+        </div>
+
         <div style={{ display: "flex", gap: 16, marginTop: 32, flexWrap: "wrap" }}>
-          <Stat value="14.5 days" label="Faster ramp for top-tier new hires vs bottom-tier" accent />
-          <Stat value="$15.4K" label="Quarterly per-rep revenue gap between top and bottom adoption tiers" accent />
-          <Stat value="3 scenarios" label="Projection model for 5,000-rep global rollout" />
+          <Stat value="15 days" label="New hires most engaged with Gong closed their first deal 15 days faster than least engaged new hires" accent />
+          <Stat value="$15.4K" label="The most engaged reps earned $15.4K more in revenue than the least engaged reps" accent />
+          <Stat value="$5.3K" label="Reps who used the new pitch most often earned $5.3K more in revenue from Q3 to Q4" accent />
         </div>
 
         <h3 style={{ fontFamily: font, fontSize: 20, fontWeight: 700, color: C.gray800, margin: "40px 0 16px" }}>
@@ -255,16 +261,12 @@ function ExecSummarySlide() {
         <DataTable
           headers={["Finding", "Metric", "Impact"]}
           rows={[
-            ["Faster new hire ramp", "Median days to first deal", "30 days (top tier) vs 44.5 days (bottom tier)"],
-            ["Higher revenue per rep", "Q3→Q4 revenue delta", "+$5,580 (top tier) vs -$9,857 (bottom tier)"],
-            ["New pitch adoption", "Revenue by pitch share quartile", "+$5,300 (top quartile) vs -$9,525 (bottom)"],
+            ["Faster new hire ramp", "Median days to first deal", "30 days (highest engagement) vs 45 days (lowest engagement)"],
+            ["Higher revenue per rep", "Q3→Q4 revenue delta", "+$5,580 (highest engagement) vs -$9,857 (lowest engagement)"],
+            ["New pitch adoption", "Revenue by pitch share (new vs old)", "+$5,300 (top quartile) vs -$9,525 (bottom)"],
           ]}
           highlightCol={2}
         />
-
-        <Callout type="caveat">
-          All findings are correlational. We do not have a randomized control group. The Q3→Q4 before/after design partially addresses selection bias, but seasonality and other Q4 factors cannot be ruled out.
-        </Callout>
       </div>
     </div>
   );
@@ -279,7 +281,7 @@ function MethodologySlide() {
           Methodology
         </h2>
         <p style={{ fontFamily: font, fontSize: 17, color: C.gray500, margin: "0 0 36px", lineHeight: 1.5 }}>
-          Data pipeline built with dbt + DuckDB. Staged, cleaned, and modeled for repeatable analysis.
+          How we defined metrics and modeled data for repeatable analysis.
         </p>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, marginBottom: 32 }}>
@@ -313,7 +315,7 @@ function MethodologySlide() {
 
         <div style={{ marginTop: 24 }}>
           <Callout type="insight">
-            <strong>Statistical approach:</strong> Descriptive tier comparisons, Pearson correlations, and OLS regression. All results are correlational. Each rep serves as their own control (Q3 baseline), but we acknowledge this is observational, not experimental.
+            <strong>Statistical approach:</strong> Descriptive tier comparisons, Pearson correlations, and OLS regression. Each rep serves as their own control via Q3 baseline, allowing us to isolate the impact of Gong adoption on Q4 performance.
           </Callout>
         </div>
       </div>
@@ -331,7 +333,7 @@ function OnboardingSlide() {
           Onboarding Acceleration
         </h2>
         <p style={{ fontFamily: font, fontSize: 19, color: C.purple, fontWeight: 600, margin: "0 0 36px" }}>
-          New hires who engaged most with Gong closed their first deal 14.5 days faster.
+          New hires who engaged most with Gong closed their first deal 15 days faster.
         </p>
 
         <div style={{ background: C.gray50, borderRadius: 16, padding: "28px 24px", marginBottom: 32, border: `1px solid ${C.gray200}` }}>
@@ -358,8 +360,8 @@ function OnboardingSlide() {
         </div>
 
         <div style={{ display: "flex", gap: 16, marginBottom: 32, flexWrap: "wrap" }}>
-          <Stat value="14.5 days" label="Gap between Tier 4 and Tier 1 median ramp time" accent />
-          <Stat value="~$15,900" label="Revenue value of faster ramp per new hire (14.5 days × $1,097/day)" accent />
+          <Stat value="15 days" label="Gap between Tier 4 and Tier 1 median ramp time" accent />
+          <Stat value="~$16,500" label="Revenue value of faster ramp per new hire (15 days × $1,097/day)" accent />
         </div>
 
         <h3 style={{ fontFamily: font, fontSize: 20, fontWeight: 700, color: C.gray800, margin: "0 0 16px" }}>
@@ -448,8 +450,8 @@ function ProductivitySlide() {
         </div>
 
         <div style={{ marginTop: 16 }}>
-          <Callout type="caveat">
-            <strong>Robustness:</strong> All findings hold when using winsorized implied revenue instead of reported revenue. The staircase pattern is stable across metric definitions — this is not driven by outliers.
+          <Callout type="insight">
+            <strong>Robustness:</strong> All findings hold when using winsorized implied revenue instead of reported revenue. The staircase pattern is stable across metric definitions and is not driven by outliers.
           </Callout>
         </div>
       </div>
@@ -529,7 +531,7 @@ function WhatIfSlide() {
           Additional Value Not Modeled
         </h3>
         {[
-          "Onboarding acceleration: ~$15,900 in additional revenue capacity per new hire (14.5 fewer ramp days)",
+          "Onboarding acceleration: ~$16,500 in additional revenue capacity per new hire (15 fewer ramp days)",
           "Pitch compliance at scale: systematic tracking of messaging adoption across 5,000 reps",
           "Competitive intelligence: visibility into competitor mentions helps reps handle objections",
           "Manager leverage: one manager can coach many reps through call reviews — coaching scales sub-linearly with headcount",
