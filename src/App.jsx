@@ -236,7 +236,7 @@ function ExecSummarySlide() {
           Executive Summary
         </h2>
         <p style={{ fontFamily: font, fontSize: 17, color: C.gray500, margin: "0 0 36px", lineHeight: 1.5 }}>
-          Key findings from RavingFan's 3-month Gong deployment.
+          Key findings from RavingFan's 3-month Gong deployment
         </p>
 
         <Callout type="action">
@@ -245,7 +245,7 @@ function ExecSummarySlide() {
 
         <div style={{ marginTop: 24 }}>
           <Callout type="insight">
-            <strong>How we measured adoption:</strong> We scored every rep on how actively they used Gong then bucketed them into four tiers from lowest to highest engagement. The pattern is clear: the more a rep engaged with Gong, the better their outcomes on every metric.
+            <strong>How we measured adoption:</strong> We assigned every rep a score based on how actively the used Gong, then bucketed them into four categories from lowest to highest engagement. The finding was clear: the more a rep engaged with Gong, the better they performed on every metric.
           </Callout>
         </div>
 
@@ -281,23 +281,36 @@ function MethodologySlide() {
           Methodology
         </h2>
         <p style={{ fontFamily: font, fontSize: 17, color: C.gray500, margin: "0 0 36px", lineHeight: 1.5 }}>
-          How we defined metrics and modeled data for repeatable analysis.
+          Defining metrics and data modeling for repeatable analysis
         </p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 20, marginBottom: 32 }}>
-          {[
-            { title: "Data Sources", desc: "Two static tables: Performance Data (Q3 pre-Gong, Q4 post-Gong) and Gong Engagement Data (Q4 usage metrics). 1,000 reps joined on rep ID." },
-            { title: "Pipeline", desc: "Layered dbt project: seeds → staging (type casting) → intermediate (joins, winsorization, DQ flags, tiers) → marts (analyst-facing wide table + thin rollups)." },
-            { title: "Engagement Scoring", desc: "Composite index = manager listens + peer listens + deal board touches + (50 × interactivity score). Quartile tiers assigned within population." },
-          ].map((card, i) => (
-            <div key={i} style={{
-              background: C.white, border: `1px solid ${C.gray200}`, borderRadius: 12,
-              padding: "24px 24px 20px",
-            }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: C.gray800, fontFamily: font, marginBottom: 8 }}>{card.title}</div>
-              <div style={{ fontSize: 14, color: C.gray600, fontFamily: font, lineHeight: 1.6 }}>{card.desc}</div>
+        <h3 style={{ fontFamily: font, fontSize: 20, fontWeight: 700, color: C.gray800, margin: "0 0 16px" }}>
+          Data Modeling
+        </h3>
+        {[
+          "Seeds → Staging: Loaded the two raw CSVs (performance and Gong engagement), standardized column names to snake_case, and cast data types (integers for counts, floats for dollar amounts and scores, boolean for new hire flag).",
+          "Staging → Intermediate: Joined the two tables on rep ID. Computed winsorization thresholds (p01/p99) by cohort in int_metric_bounds. In int_rep_enriched: applied winsorization caps, flagged data quality issues, computed Q3→Q4 deltas (revenue, deal size, deal count), built the composite Gong engagement index, assigned adoption tier quartiles (all reps and new hires separately), and calculated new pitch share.",
+          "Intermediate → Marts: Built three output tables. mart_rep_value_insights is the one-row-per-rep wide table with all raw, cleaned, and derived fields for ad hoc analysis. mart_onboarding_drivers pre-aggregates new hire metrics by adoption tier. mart_productivity_by_tier pre-aggregates revenue and deal metrics by adoption tier for all reps.",
+        ].map((item, i) => (
+          <div key={i} style={{
+            display: "flex", gap: 10, alignItems: "flex-start", marginBottom: i === 2 ? 24 : 8,
+            fontFamily: font, fontSize: 14, color: C.gray700, lineHeight: 1.5,
+          }}>
+            <span style={{ color: C.purple, fontWeight: 700, flexShrink: 0, marginTop: 1 }}>→</span>
+            {item}
+          </div>
+        ))}
+
+        <div style={{ marginBottom: 32 }}>
+          <div style={{
+            background: C.white, border: `1px solid ${C.gray200}`, borderRadius: 12,
+            padding: "24px 24px 20px",
+          }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: C.gray800, fontFamily: font, marginBottom: 8 }}>Engagement Scoring</div>
+            <div style={{ fontSize: 14, color: C.gray600, fontFamily: font, lineHeight: 1.6 }}>
+              Index = Manager Listens + Peer Listens + Deal Board Touches + (50 × Interactivity Score). Quartile tiers assigned within population.
             </div>
-          ))}
+          </div>
         </div>
 
         <h3 style={{ fontFamily: font, fontSize: 20, fontWeight: 700, color: C.gray800, margin: "0 0 16px" }}>
@@ -306,10 +319,10 @@ function MethodologySlide() {
         <DataTable
           headers={["Issue", "Affected", "Treatment"]}
           rows={[
-            ["Q4 deal size outliers", "~20 reps", "Winsorized at p01/p99 within cohorts (max $3.45M → cap ~$1,567)"],
-            ["Q4 deal count outlier", "Few reps", "Winsorized at p01/p99 (one value 499 vs median 99)"],
-            ["Negative ramp time", "2 new hires", "Set to null (logically invalid)"],
-            ["Revenue vs implied mismatch", "4 reps (0.4%)", "Flagged. Reported revenue used as headline; winsorized implied for robustness"],
+            ["Q4 deal size outliers", "~20 reps", "Winsorized at p01/p99 within cohorts. Winsorizing caps extreme values at a percentile threshold rather than removing them, preserving sample size while limiting the influence of outliers. Raw max was $3.45M vs median ~$997 — a handful of values were inflating the mean by 10x."],
+            ["Q4 deal count outlier", "Few reps", "Winsorized at p01/p99. At least one value of 499 vs median 99 — likely a data entry error or exceptional case that would skew aggregations."],
+            ["Negative ramp time", "2 new hires", "Set to null. Negative days-to-first-deal is logically impossible — these are clock or data entry errors that would bias the onboarding analysis downward."],
+            ["Revenue vs implied mismatch", "4 reps (0.4%)", "Flagged with a boolean column. For these reps, Revenue Per Rep ≠ Deal Size × Deals. Used reported revenue as the headline metric since it's what the business tracks; winsorized implied revenue used for robustness checks to confirm findings hold under both definitions."],
           ]}
         />
 
@@ -333,7 +346,7 @@ function OnboardingSlide() {
           Onboarding Acceleration
         </h2>
         <p style={{ fontFamily: font, fontSize: 19, color: C.purple, fontWeight: 600, margin: "0 0 36px" }}>
-          New hires who engaged most with Gong closed their first deal 15 days faster.
+          New hires who engaged most with Gong closed their first deal 15 days faster and earned a revenue value of $16.5k (15 days × $1.1k/day)
         </p>
 
         <div style={{ background: C.gray50, borderRadius: 16, padding: "28px 24px", marginBottom: 32, border: `1px solid ${C.gray200}` }}>
